@@ -1,0 +1,8 @@
+proxies:
+  - name: USA-LA-ISP
+    server: # 填写服务器IP
+    udp: true # 是否开启udp
+    port: 2333 # 端口
+    type: socks5 # 类型
+    username: username # 用户名
+    password: password # 密码
