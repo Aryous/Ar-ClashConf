@@ -1,2 +1,2 @@
 # Ar-ClashConf
- Clash Config
+ ## Clash Config for own use
