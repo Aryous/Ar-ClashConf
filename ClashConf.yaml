@@ -9,9 +9,9 @@ mode: Rule
 # 5 个级别：silent / info / warning / error / debug。silent，即不输出任何内容,级别越高日志输出量越大，越倾向于调试，若需要请自行开启。
 log-level: info
 
-# clash 的 RESTful API
+# clash 的 RESTful API，务必添加密码
 external-controller: 128.0.0.1:9090
-secret: xlsfj4a65sd5dsa.;sdaA
+secret: passwordneed
 
 dns:
   enable: true
