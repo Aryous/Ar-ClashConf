@@ -10,7 +10,7 @@ mode: Rule
 log-level: info
 
 # clash 的 RESTful API，务必添加密码
-external-controller: 128.0.0.1:9090
+external-controller: 127.0.0.1:9126
 secret: passwordneed
 
 dns:
