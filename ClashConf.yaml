@@ -10,7 +10,8 @@ mode: Rule
 log-level: info
 
 # clash 的 RESTful API
-external-controller: 127.0.0.1:9090
+external-controller: 128.0.0.1:9090
+secret: xlsfj4a65sd5dsa.;sdaA
 
 dns:
   enable: true
