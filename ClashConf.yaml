@@ -107,7 +107,7 @@ dns:
 
 
 proxy-providers:
-  ISP-USA:  # 代理集名称(此处放置需要前置代理的住宅IP配置，具体写法参考ISP-USA.yaml文件)
+  USA-ISP:  # 代理集名称(此处放置需要前置代理的住宅IP配置，具体写法参考USA-ISP.yaml文件)
     type: file  # 代理集类型：http(clash 订阅链接) | file(本地文件)
     path: ./profiles/ProxyProvider/USA-ISP.yaml  # 代理集存放路径，可以为绝对路径，相对路径相对于 clash home 目录
     health-check:  # 用于对代理集所包含的节点设置自动延迟测试
@@ -148,7 +148,7 @@ proxy-groups:
   - name: 家庭宽带
     type: select
     use:
-      - ISP-USA
+      - USA-ISP
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Back.png
   - name: 服务器
     type: select
@@ -438,6 +438,11 @@ rule-providers:
     path: ./profiles/RuleProvider/Claude.yaml  # 规则集存放路径
     url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Anthropic/Anthropic.yaml  # 规则集链接（若 type 为 http）
     interval: 86400  # 规则集更新间隔（若 type 为 http）
+  AI:  # 规则集名称
+    type: http  # 规则集文件类型：http(在线规则集) | file(本地文件)
+    behavior: classical
+    path: ./profiles/RuleProvider/AI.yaml  # 规则集存放路径
+    url: https://kelee.one/Tool/Clash/Rule/AI.yaml
 
 # 直连和广告拦截
   Special:
@@ -808,6 +813,7 @@ rule-providers:
 
 
 rules:
+  - DOMAIN-SUFFIX,claudeusercontent.com,OpenAI
   - DOMAIN-SUFFIX,coze.com,节点选择
   - DOMAIN-SUFFIX,perplexity.ai,OpenAI
   # 直连和广告拦截
@@ -868,6 +874,7 @@ rules:
   # 特殊服务，如需为某个规则列表单独设置策略，请直接修改策略名称与上方策略组名称保持一致
   - RULE-SET,OpenAI,OpenAI
   - RULE-SET,Claude,OpenAI
+  - RULE-SET,AI,OpenAI
   - RULE-SET,GoogleFCM,Google
   - RULE-SET,ACL4SSR-Google,Google
   - RULE-SET,ACL4SSR-GoogleCN,Google
