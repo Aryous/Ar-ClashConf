@@ -1,5 +1,5 @@
 proxies:
-  - name: USA-LA-ISP
+  - name: USA-ISP
     server: # 填写服务器IP
     udp: true # 是否开启udp
     port: 2333 # 端口
