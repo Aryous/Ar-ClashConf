@@ -894,4 +894,5 @@ rules:
   - RULE-SET,ACL4SSR-ChinaIP,DIRECT
   - RULE-SET,ACL4SSR-ChinaDomain,DIRECT
   - GEOIP,CN,全球直连
+  - AND,((DST-PORT,443),(NETWORK,UDP)),REJECT # 逻辑规则，udp:443，拒绝（禁止所有QUIC）
   - MATCH,Final
