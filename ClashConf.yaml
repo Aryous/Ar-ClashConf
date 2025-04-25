@@ -427,7 +427,7 @@ proxy-groups:
       - Server_Group
 
 rule-providers:
-   ACL4SSR-Schalor:  # 规则集名称
+  ACL4SSR-Schalor:  # 规则集名称
     type: http  # 规则集文件类型：http(在线规则集) | file(本地文件)
     behavior: classical
     path: ./profiles/RuleProvider/ACL4SSR-Schalor.yaml  # 规则集存放路径
