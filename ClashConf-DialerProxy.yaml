@@ -1,0 +1,907 @@
+port: 7890
+socks-port: 7891
+allow-lan: true
+
+# 规则模式：rule（规则） / global（全局代理）/ direct（全局直连）
+mode: Rule
+
+# 设置日志输出级别 (默认级别：info）。
+# 5 个级别：silent / info / warning / error / debug。silent，即不输出任何内容,级别越高日志输出量越大，越倾向于调试，若需要请自行开启。
+log-level: info
+
+# clash 的 RESTful API
+external-controller: 127.0.0.1:9090
+secret: password
+#udp: false
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+  ipv6: true
+
+  # 如果只在中国大陆境内使用，推荐删除 1.0.0.1 和 8.8.8.8
+  default-nameserver:
+    #- 1.0.0.1
+    #- 8.8.8.8
+    - 223.5.5.5
+    - 119.29.29.29
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+
+  # 在以下列表的域名将不会被解析为 fake ip，这些域名相关的解析请求将会返回它们真实的 IP 地址
+  fake-ip-filter:
+    - '*.lan'
+    - 'cable.auth.com'
+    - '+.msftconnecttest.com'
+    - '+.msftncsi.com'
+    - 'network-test.debian.org'
+    - 'detectportal.firefox.com'
+    - 'resolver1.opendns.com'
+    - '+.srv.nintendo.net'
+    - '+.stun.playstation.net'
+    - 'xbox.*.microsoft.com'
+    - '+.xboxlive.com'
+    - 'stun.*'
+    - 'global.turn.twilio.com'
+    - 'global.stun.twilio.com'
+    - 'localhost.*.qq.com'
+    - '+.logon.battlenet.com.cn'
+    - '+.logon.battle.net'
+    - '+.blzstatic.cn'
+    - '+.cmpassport.com'
+    - 'id6.me'
+    - 'open.e.189.cn'
+    - 'mdn.open.wo.cn'
+    - 'opencloud.wostore.cn'
+    - 'auth.wosms.cn'
+    - '+.jegotrip.com.cn'
+    - '+.icitymobile.mobi'
+    - '+.pingan.com.cn'
+    - '+.cmbchina.com'
+    - '+.cmbchina.com.cn'
+    - '+?miwifi.com'
+    - 'pool.ntp.org'
+    - '+.pool.ntp.org'
+    - 'ntp.*.com'
+    - 'time.*.com'
+    - 'ntp?.*.com'
+    - 'time?.*.com'
+    - 'time.*.gov'
+    - 'time.*.edu.cn'
+    - '+.ntp.org.cn'
+    - 'time.*.apple.com'
+    - 'PDC._msDCS.*.*'
+    - 'DC._msDCS.*.*'
+    - 'GC._msDCS.*.*'
+
+  nameserver:
+    - https://223.5.5.5/dns-query
+    - https://223.6.6.6/dns-query
+
+  # 当 fallback 参数被配置时, DNS 请求将同时发送至上方 nameserver 列表和下方 fallback 列表中配置的所有 DNS 服务器.
+  # 当解析得到的 IP 地址的地理位置不是 CN 时，clash 将会选用 fallback 中 DNS 服务器的解析结果。
+  # fallback:
+  #   - https://1.0.0.1/dns-query
+  #   - https://dns.google/dns-query
+
+  # 如果使用 nameserver 列表中的服务器解析的 IP 地址在下方列表中的子网中，则它们被认为是无效的，
+  # Clash 会选用 fallback 列表中配置 DNS 服务器解析得到的结果。
+  #
+  # 当 fallback-filter.geoip 为 true 且 IP 地址的地理位置为 CN 时，
+  # Clash 会选用 nameserver 列表中配置 DNS 服务器解析得到的结果。
+  #
+  # 当 fallback-filter.geoip 为 false, 如果解析结果不在 fallback-filter.ipcidr 范围内，
+  # Clash 总会选用 nameserver 列表中配置 DNS 服务器解析得到的结果。
+  #
+  # 采取以上逻辑进行域名解析是为了对抗 DNS 投毒攻击。
+  fallback-filter:
+    geoip: false
+    ipcidr:
+      - 240.0.0.0/4
+      - 0.0.0.0/32
+    # domain:
+    #   - '+.google.com'
+    #   - '+.facebook.com'
+    #   - '+.youtube.com'
+
+proxy-providers:
+  ISP-USA-Collection:  # 代理集名称
+    type: http  # 代理集类型：http(clash 订阅链接) | file(本地文件)
+    path: ./profiles/ProxyProvider/USA-ISP-Collection.yaml  # 代理集存放路径，可以为绝对路径，相对路径相对于 clash home 目录
+    url: ISPexample.com
+    override:
+      dialer-proxy: "服务器" 
+    health-check:  # 用于对代理集所包含的节点设置自动延迟测试
+      enable: true
+      interval: 300  # 间隔时间
+      url: http://www.gstatic.com/generate_204  # 测试地址
+  ServerGroup:  # 代理集名称
+    type: http  # 代理集类型：http(clash 订阅链接) | file(本地文件)
+    path: ./profiles/ProxyProvider/ServerGroup.yaml  # 代理集存放路径，可以为绝对路径，相对路径相对于 clash home 目录
+    url: SGexample.com  # 代理集链接（若 type 为 http）
+    interval: 3600  # 代理集更新间隔（若 type 为 http）
+    health-check:  # 用于对代理集所包含的节点设置自动延迟测试
+      enable: true
+      interval: 300  # 间隔时间
+      url: http://www.gstatic.com/generate_204  # 测试地址
+  ServerBuckup:  # 代理集名称
+    type: http  # 代理集类型：http(clash 订阅链接) | file(本地文件)
+    path: ./profiles/ProxyProvider/ServerBuckup.yaml  # 代理集存放路径，可以为绝对路径，相对路径相对于 clash home 目录
+    url: BackupExample.com  # 代理集链接（若 type 为 http）
+    interval: 3600  # 代理集更新间隔（若 type 为 http）
+    health-check:  # 用于对代理集所包含的节点设置自动延迟测试
+      enable: true
+      interval: 300  # 间隔时间
+      url: http://www.gstatic.com/generate_204  # 测试地址
+
+proxy-groups:
+  - name: 节点选择
+    type: select
+    proxies:
+      - 服务器
+      - 自动选择
+      - 家庭宽带
+      - 🇭🇰 香港节点
+      - 🇨🇳 台湾节点
+      - 🇸🇬 狮城节点
+      - 🇯🇵 日本节点
+      - 🇺🇲 美国节点
+      - 🇰🇷 韩国节点
+      - DIRECT
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Proxy.png
+  - name: 家庭宽带
+    type: select
+    use:
+      - ISP-USA-Collection
+      - ServerGroup
+      - ServerBuckup
+    filter: (?i)(ISP|家宽)
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Back.png
+  - name: 服务器
+    type: select
+    use:
+      - ServerGroup
+      - ServerBuckup
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Server.png
+  - name: 自动选择
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    filter: ^(?=.*(.*))(?!.*((?i)邀请|返利|循环|官网|客服|网站|网址|获取|订阅| 直接连接 | 流量|到期|机场|下次|版本|官址|备用|到期|过期|已用|联系|邮箱|工单|群|贩卖|倒卖|防止|国内|🎮|(\b(GAME|USE|USED|TOTAL|EXPIRE|EMAIL|Panel)\b|(\d{4}-\d{2}-\d{2}|\dG)))).*$
+    interval: 300
+    tolerance: 50
+    use:
+      - ServerGroup
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png
+  - name: Telegram
+    type: select
+    proxies:
+      - 节点选择
+      - 自动选择
+      - 🇸🇬 狮城节点
+      - 🇭🇰 香港节点
+      - 🇨🇳 台湾节点
+      - 🇯🇵 日本节点
+      - 🇺🇲 美国节点
+      - 🇰🇷 韩国节点
+      - 服务器
+      - DIRECT
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Telegram.png
+  - name: AIService
+    type: select
+    proxies:
+      - 家庭宽带
+    icon: https://raw.githubusercontent.com/chxm1023/Script_X/main/icon/ChatGPT/ChatGPT4.png
+  - name: YouTube
+    type: select
+    proxies:
+      - 节点选择
+      - 自动选择
+      - 🇸🇬 狮城节点
+      - 🇭🇰 香港节点
+      - 🇨🇳 台湾节点
+      - 🇯🇵 日本节点
+      - 🇺🇲 美国节点
+      - 🇰🇷 韩国节点
+      - 服务器
+      - DIRECT
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube.png
+  - name: Netflix
+    type: select
+    proxies:
+      - 节点选择
+      - 自动选择
+      - 🇸🇬 狮城节点
+      - 🇭🇰 香港节点
+      - 🇨🇳 台湾节点
+      - 🇯🇵 日本节点
+      - 🇺🇲 美国节点
+      - 🇰🇷 韩国节点
+      - 服务器
+      - DIRECT
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netflix.png
+  - name: Bahamut
+    type: select
+    proxies:
+      - 🇨🇳 台湾节点
+      - 节点选择
+      - 服务器
+      - DIRECT
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Bahamut.png
+  - name: BiliBili
+    type: select
+    proxies:
+      - 全球直连
+      - 🇨🇳 台湾节点
+      - 🇭🇰 香港节点
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/bilibili_3.png
+  - name: 国外媒体
+    type: select
+    proxies:
+      - 节点选择
+      - 自动选择
+      - 🇭🇰 香港节点
+      - 🇨🇳 台湾节点
+      - 🇸🇬 狮城节点
+      - 🇯🇵 日本节点
+      - 🇺🇲 美国节点
+      - 🇰🇷 韩国节点
+      - 服务器
+      - DIRECT
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ForeignMedia.png
+  - name: 国内媒体
+    type: select
+    proxies:
+      - DIRECT
+      - 🇭🇰 香港节点
+      - 🇨🇳 台湾节点
+      - 🇸🇬 狮城节点
+      - 🇯🇵 日本节点
+      - 服务器
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/StreamingCN.png
+  - name: Google
+    type: select
+    proxies:
+      - 节点选择
+      - DIRECT
+      - 🇺🇲 美国节点
+      - 🇭🇰 香港节点
+      - 🇨🇳 台湾节点
+      - 🇸🇬 狮城节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 服务器
+    icon: https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/google.svg
+  - name: OneDrive
+    type: select
+    proxies:
+      - 节点选择
+      - DIRECT
+      - 🇺🇲 美国节点
+      - 🇭🇰 香港节点
+      - 🇨🇳 台湾节点
+      - 🇸🇬 狮城节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 服务器
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/OneDrive.png
+  - name: Microsoft
+    type: select
+    proxies:
+      - DIRECT
+      - 节点选择
+      - 🇺🇲 美国节点
+      - 🇭🇰 香港节点
+      - 🇨🇳 台湾节点
+      - 🇸🇬 狮城节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 服务器
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png
+  - name: Apple
+    type: select
+    proxies:
+      - DIRECT
+      - 节点选择
+      - 家庭宽带
+      - 🇺🇲 美国节点
+      - 🇭🇰 香港节点
+      - 🇨🇳 台湾节点
+      - 🇸🇬 狮城节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 服务器
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png
+  - name: 游戏平台
+    type: select
+    proxies:
+      - DIRECT
+      - 节点选择
+      - 🇺🇲 美国节点
+      - 🇭🇰 香港节点
+      - 🇨🇳 台湾节点
+      - 🇸🇬 狮城节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 服务器
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Game.png
+  - name: 网易音乐
+    type: select
+    proxies:
+      - DIRECT
+      - 节点选择
+      - 自动选择
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netease_Music.png
+  - name: 全球直连
+    type: select
+    proxies:
+      - DIRECT
+      - 节点选择
+      - 自动选择
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Domestic.png
+  - name: 广告拦截
+    type: select
+    proxies:
+      - REJECT
+      - DIRECT
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AdBlack.png
+  - name: 应用净化
+    type: select
+    proxies:
+      - REJECT
+      - DIRECT
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Hijacking.png
+  - name: Final
+    type: select
+    proxies:
+      - 节点选择
+      - 自动选择
+      - DIRECT
+      - 🇭🇰 香港节点
+      - 🇨🇳 台湾节点
+      - 🇸🇬 狮城节点
+      - 🇯🇵 日本节点
+      - 🇺🇲 美国节点
+      - 🇰🇷 韩国节点
+      - 服务器
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png
+  - name: 🇭🇰 香港节点
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    filter: "(?i)港|hk|hongkong|hong kong"
+    use:
+      - ServerGroup
+  - name: 🇯🇵 日本节点
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    filter: (?i)(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)
+    interval: 300
+    tolerance: 50
+    use:
+      - ServerGroup
+  - name: 🇺🇲 美国节点
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 150
+    filter: (?i)(美|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|US|United States)
+    use:
+      - ServerGroup
+  - name: 🇨🇳 台湾节点
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    filter: (?i)(台|TW|Tai)
+    use:
+      - ServerGroup
+  - name: 🇸🇬 狮城节点
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    filter: "(?i)新|新加坡|singapore|sgp|sg|狮城"
+    use:
+      - ServerGroup
+  - name: 🇰🇷 韩国节点
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    filter: (?i)(KR|Korea|KOR|首尔|韩|韓)
+    use:
+      - ServerGroup
+
+rule-providers:
+  ACL4SSR-BanProgramAD:  # 规则集名称
+    type: http  # 规则集文件类型：http(在线规则集) | file(本地文件)
+    behavior: classical
+    path: ./profiles/RuleProvider/BanProgramAD.yaml  # 规则集存放路径
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/BanProgramAD.yaml  # 规则集链接（若 type 为 http）
+    interval: 86400  # 规则集更新间隔（若 type 为 http）
+  OneDrive:  # 规则集名称
+    type: http  # 规则集文件类型：http(在线规则集) | file(本地文件)
+    behavior: classical
+    path: ./profiles/RuleProvider/OneDrive.yaml  # 规则集存放路径
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/OneDrive.yaml  # 规则集链接（若 type 为 http）
+    interval: 86400  # 规则集更新间隔（若 type 为 http）
+  OpenAI:  # 规则集名称
+    type: http  # 规则集文件类型：http(在线规则集) | file(本地文件)
+    behavior: classical
+    path: ./profiles/RuleProvider/OpenAI.yaml  # 规则集存放路径
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/OpenAi.yaml  # 规则集链接（若 type 为 http）
+    interval: 86400  # 规则集更新间隔（若 type 为 http）
+  Claude:  # 规则集名称
+    type: http  # 规则集文件类型：http(在线规则集) | file(本地文件)
+    behavior: classical
+    path: ./profiles/RuleProvider/Claude.yaml  # 规则集存放路径
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Anthropic/Anthropic.yaml  # 规则集链接（若 type 为 http）
+    interval: 86400  # 规则集更新间隔（若 type 为 http）
+  AI:  # 规则集名称
+    type: http  # 规则集文件类型：http(在线规则集) | file(本地文件)
+    behavior: classical
+    path: ./profiles/RuleProvider/AI.yaml  # 规则集存放路径
+    url: https://kelee.one/Tool/Clash/Rule/AI.yaml
+  ACL4SSR-AI:  # 规则集名称
+    type: http  # 规则集文件类型：http(在线规则集) | file(本地文件)
+    behavior: classical
+    path: ./profiles/RuleProvider/ACL4SSR-AI.yaml  # 规则集存放路径
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Providers/Ruleset/AI.yaml  # 规则集链接（若 type 为 http）
+    interval: 86400  # 规则集更新间隔（若 type 为 http）
+
+# 直连和广告拦截
+  Special:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Special.yaml
+    path: ./profiles/RuleProvider/Special.yaml
+    interval: 86400
+  ACL4SSR-ChinaIP:
+    type: http
+    behavior: ipcidr
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaIp.yaml
+    path: ./profiles/RuleProvider/ACL4SSR-ChinaIP.yaml
+    interval: 86400
+  ACL4SSR-ChinaDomain:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaDomain.yaml
+    path: ./profiles/RuleProvider/ACL4SSR-ChinaDomain.yaml
+    interval: 86400
+  ACL4SSR-LocalAreaNetwork:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/LocalAreaNetwork.yaml
+    path: ./profiles/RuleProvider/ACL4SSR-LocalAreaNetwork.yaml
+    interval: 86400
+  ACL4SSR-UnBan:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/UnBan.yaml
+    path: ./profiles/RuleProvider/ACL4SSR-UnBan.yaml
+    interval: 86400
+  ACL4SSR-GoogleCN:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/GoogleCN.yaml
+    path: ./profiles/RuleProvider/ACL4SSR-GoogleCN.yaml
+    interval: 86400
+  ACL4SSR-Google:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Google.yaml
+    path: ./profiles/RuleProvider/ACL4SSR-Google.yaml
+    interval: 86400
+  Reject:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Reject.yaml
+    path: ./profiles/RuleProvider/Reject.yaml
+    interval: 86400
+# 国内媒体分组
+  Bilibili:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Bilibili.yaml
+    path: ./profiles/RuleProvider/Media/Bilibili.yaml
+    interval: 86400
+  IQ:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/IQ.yaml
+    path: ./profiles/RuleProvider/Media/IQI.yaml
+    interval: 86400
+  IQIYI:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/IQIYI.yaml
+    path: ./profiles/RuleProvider/Media/IQYI.yaml
+    interval: 86400
+  Letv:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Letv.yaml
+    path: ./profiles/RuleProvider/Media/Letv.yaml
+    interval: 86400
+  Netease Music:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Netease%20Music.yaml
+    path: ./profiles/RuleProvider/Media/Netease_Music.yaml
+    interval: 86400
+  Tencent Video:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Tencent%20Video.yaml
+    path: ./profiles/RuleProvider/Media/Tencent_Video.yaml
+    interval: 86400
+  Youku:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Youku.yaml
+    path: ./profiles/RuleProvider/Media/Youku.yaml
+    interval: 86400
+  WeTV:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/WeTV.yaml
+    path: ./profiles/RuleProvider/Media/WeTV.yaml
+    interval: 86400
+# 国际媒体分组
+  ABC:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/ABC.yaml
+    path: ./profiles/RuleProvider/Media/ABC.yaml
+    interval: 86400
+  Abema TV:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Abema%20TV.yaml
+    path: ./profiles/RuleProvider/Media/Abema_TV.yaml
+    interval: 86400
+  Amazon:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Amazon.yaml
+    path: ./profiles/RuleProvider/Media/Amazon.yaml
+    interval: 86400
+  Apple Music:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Apple%20Music.yaml
+    path: ./profiles/RuleProvider/Media/Apple_Music.yaml
+    interval: 86400
+  Apple News:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Apple%20News.yaml
+    path: ./profiles/RuleProvider/Media/Apple_News.yaml
+    interval: 86400
+  Apple TV:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Apple%20TV.yaml
+    path: ./profiles/RuleProvider/Media/Apple_TV.yaml
+    interval: 86400
+  Bahamut:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Bahamut.yaml
+    path: ./profiles/RuleProvider/Media/Bahamut.yaml
+    interval: 86400
+  BBC iPlayer:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/BBC%20iPlayer.yaml
+    path: ./profiles/RuleProvider/Media/BBC_iPlayer.yaml
+    interval: 86400
+  DAZN:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/DAZN.yaml
+    path: ./profiles/RuleProvider/Media/DAZN.yaml
+    interval: 86400
+  Discovery Plus:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Discovery%20Plus.yaml
+    path: ./profiles/RuleProvider/Media/Discovery_Plus.yaml
+    interval: 86400
+  Disney Plus:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Disney%20Plus.yaml
+    path: ./profiles/RuleProvider/Media/Disney_Plus.yaml
+    interval: 86400
+  encoreTVB:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/encoreTVB.yaml
+    path: ./profiles/RuleProvider/Media/encoreTVB.yaml
+    interval: 86400
+  F1 TV:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/F1%20TV.yaml
+    path: ./profiles/RuleProvider/Media/F1_TV.yaml
+    interval: 86400
+  Fox Now:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Fox%20Now.yaml
+    path: ./profiles/RuleProvider/Media/Fox_Now.yaml
+    interval: 86400
+  Fox+:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Fox%2B.yaml
+    path: ./profiles/RuleProvider/Media/Fox+.yaml
+    interval: 86400
+  HBO Go:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/HBO%20Go.yaml
+    path: ./profiles/RuleProvider/Media/HBO_Go.yaml
+    interval: 86400
+  HBO Max:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/HBO%20Max.yaml
+    path: ./profiles/RuleProvider/Media/HBO_Max.yaml
+    interval: 86400
+  Hulu Japan:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Hulu%20Japan.yaml
+    path: ./profiles/RuleProvider/Media/Hulu_Japan.yaml
+    interval: 86400
+  Hulu:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Hulu.yaml
+    path: ./profiles/RuleProvider/Media/Hulu.yaml
+    interval: 86400
+  Japonx:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Japonx.yaml
+    path: ./profiles/RuleProvider/Media/Japonx.yaml
+    interval: 86400
+  JOOX:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/JOOX.yaml
+    path: ./profiles/RuleProvider/Media/JOOX.yaml
+    interval: 86400
+  KKBOX:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/KKBOX.yaml
+    path: ./profiles/RuleProvider/Media/KKBOX.yaml
+    interval: 86400
+  KKTV:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/KKTV.yaml
+    path: ./profiles/RuleProvider/Media/KKTV.yaml
+    interval: 86400
+  Line TV:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Line%20TV.yaml
+    path: ./profiles/RuleProvider/Media/Line_TV.yaml
+    interval: 86400
+  myTV SUPER:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/myTV%20SUPER.yaml
+    path: ./profiles/RuleProvider/Media/myTV_SUPER.yaml
+    interval: 86400
+  Netflix:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Netflix.yaml
+    path: ./profiles/RuleProvider/Media/Netflix.yaml
+    interval: 86400
+  Pandora:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Pandora.yaml
+    path: ./profiles/RuleProvider/Media/Pandora.yaml
+    interval: 86400
+  PBS:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/PBS.yaml
+    path: ./profiles/RuleProvider/Media/PBS.yaml
+    interval: 86400
+  Pornhub:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Pornhub.yaml
+    path: ./profiles/RuleProvider/Media/Pornhub.yaml
+    interval: 86400
+  Soundcloud:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Soundcloud.yaml
+    path: ./profiles/RuleProvider/Media/Soundcloud.yaml
+    interval: 86400
+  Spotify:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/Spotify.yaml
+    path: ./profiles/RuleProvider/Media/Spotify.yaml
+    interval: 86400
+  ViuTV:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/ViuTV.yaml
+    path: ./profiles/RuleProvider/Media/ViuTV.yaml
+    interval: 86400
+  YouTube:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/YouTube.yaml
+    path: ./profiles/RuleProvider/Media/YouTube.yaml
+    interval: 86400
+  YouTube Music:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Media/YouTube%20Music.yaml
+    path: ./profiles/RuleProvider/Media/YouTube_Music.yaml
+    interval: 86400
+# Apple规则列表
+  Apple:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Apple.yaml
+    path: ./profiles/RuleProvider/Apple.yaml
+    interval: 86400
+# 电报、微软、ChatGPT、Steam 及 PayPal 可选规则列表
+  Telegram:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Telegram.yaml
+    path: ./profiles/RuleProvider/Telegram.yaml
+    interval: 86400
+  Microsoft:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Microsoft.yaml
+    path: ./profiles/RuleProvider/Microsoft.yaml
+    interval: 86400
+  GoogleFCM:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/GoogleFCM.yaml
+    path: ./profiles/RuleProvider/GoogleFCM.yaml
+    interval: 86400
+  Steam:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Steam.yaml
+    path: ./profiles/RuleProvider/Steam.yaml
+    interval: 86400
+  PayPal:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/PayPal.yaml
+    path: ./profiles/RuleProvider/PayPal.yaml
+    interval: 86400
+# 必须规则列表
+  Speedtest:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Speedtest.yaml
+    path: ./profiles/RuleProvider/Speedtest.yaml
+    interval: 86400
+  Proxy:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Proxy.yaml
+    path: ./profiles/RuleProvider/Proxy.yaml
+    interval: 86400
+  Domestic:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/Domestic.yaml
+    path: ./profiles/RuleProvider/Domestic.yaml
+    interval: 86400
+  LAN:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/dler-io/Rules/main/Clash/Provider/LAN.yaml
+    path: ./profiles/RuleProvider/LAN.yaml
+    interval: 86400
+
+
+rules:
+  #- IP-CIDR,7.7.7.7,DIRECT
+  - DOMAIN-SUFFIX,claudeusercontent.com,AIService
+  - DOMAIN-SUFFIX,coze.com,节点选择
+  - DOMAIN-SUFFIX,perplexity.ai,AIService
+  # 直连和广告拦截
+  - RULE-SET,Special,DIRECT
+  - RULE-SET,ACL4SSR-LocalAreaNetwork,DIRECT
+  - RULE-SET,ACL4SSR-UnBan,DIRECT
+  - RULE-SET,ACL4SSR-BanProgramAD,应用净化
+  - RULE-SET,Reject,广告拦截
+
+  # Apple
+  - RULE-SET,Apple,Apple
+  
+  # 电报、微软、贝宝及 Steam 可选规则，如需为某个规则列表单独设置策略，请直接修改策略名称与上方策略组名称保持一致
+  - RULE-SET,OpenAI,AIService
+  - RULE-SET,Claude,AIService
+  - RULE-SET,AI,AIService
+  - RULE-SET,ACL4SSR-AI,AIService
+  - RULE-SET,Telegram,Telegram
+  - RULE-SET,OneDrive,OneDrive
+  - RULE-SET,Microsoft,Microsoft
+  - RULE-SET,PayPal,节点选择
+  - RULE-SET,Steam,游戏平台
+  
+  # 国内媒体分组
+  - RULE-SET,Bilibili,国内媒体
+  - RULE-SET,IQ,国内媒体
+  - RULE-SET,IQIYI,国内媒体
+  - RULE-SET,Letv,国内媒体
+  - RULE-SET,Netease Music,网易音乐 #🎵 网易云音乐
+  - RULE-SET,Tencent Video,国内媒体
+  - RULE-SET,Youku,国内媒体
+  - RULE-SET,WeTV,国内媒体
+  # 国际媒体分组1
+  - RULE-SET,Netflix,Netflix #网飞视频
+  - RULE-SET,Disney Plus,国外媒体 #🎬 迪士尼+
+  - RULE-SET,Spotify,国外媒体 #🎧 声田音乐
+  - RULE-SET,YouTube,YouTube #YouTube
+  - RULE-SET,YouTube Music,YouTube
+   # 国际媒体分组2
+  - RULE-SET,ABC,国外媒体
+  - RULE-SET,Abema TV,国外媒体
+  - RULE-SET,Amazon,国外媒体
+  - RULE-SET,Apple News,国外媒体
+  - RULE-SET,Apple TV,国外媒体
+  - RULE-SET,Bahamut,Bahamut
+  - RULE-SET,BBC iPlayer,国外媒体
+  - RULE-SET,DAZN,国外媒体
+  - RULE-SET,Discovery Plus,国外媒体
+  - RULE-SET,encoreTVB,国外媒体
+  - RULE-SET,F1 TV,国外媒体
+  - RULE-SET,Fox Now,国外媒体
+  - RULE-SET,Fox+,国外媒体
+  - RULE-SET,HBO Go,国外媒体
+  - RULE-SET,HBO Max,国外媒体
+  - RULE-SET,Hulu Japan,国外媒体
+  - RULE-SET,Hulu,国外媒体
+  - RULE-SET,Japonx,国外媒体
+  - RULE-SET,JOOX,国外媒体
+  - RULE-SET,KKBOX,国外媒体
+  - RULE-SET,KKTV,国外媒体
+  - RULE-SET,Line TV,国外媒体
+  - RULE-SET,myTV SUPER,国外媒体
+  - RULE-SET,Pandora,国外媒体
+  - RULE-SET,PBS,国外媒体
+  - RULE-SET,Pornhub,国外媒体
+  - RULE-SET,Soundcloud,国外媒体
+  - RULE-SET,ViuTV,国外媒体
+  
+  - RULE-SET,GoogleFCM,Google
+  - RULE-SET,ACL4SSR-Google,Google
+  - RULE-SET,ACL4SSR-GoogleCN,Google
+
+  # 必须规则
+  - RULE-SET,Speedtest,节点选择
+  - RULE-SET,Proxy,节点选择
+  - RULE-SET,Domestic,全球直连
+  - RULE-SET,LAN,DIRECT
+
+  # 最终规则
+  - RULE-SET,ACL4SSR-ChinaIP,DIRECT
+  - RULE-SET,ACL4SSR-ChinaDomain,DIRECT
+  - GEOIP,CN,全球直连
+  - AND,((DST-PORT,443),(NETWORK,UDP)),REJECT # 逻辑规则，udp:443，拒绝（禁止所有QUIC）
+  - NETWORK,UDP,REJECT
+  - MATCH,Final
